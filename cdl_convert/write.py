@@ -61,7 +61,7 @@ from __future__ import absolute_import, print_function
 # Standard Imports
 
 import sys
-
+import os
 # Local Imports
 from .collection import ColorCollection
 
@@ -154,6 +154,20 @@ def write_rnh_cdl(cdl):
     with open(cdl.file_out, 'wb') as cdl_f:
         cdl_f.write(enc(ss_cdl))
 
+
+# ==============================================================================
+
+def write_nk(cdl):
+    node_name = os.path.splitext(os.path.basename(cdl.file_out))[0]
+    with open(cdl.file_out, 'wb') as f:
+        f.write("OCIOCDLTransform {\n")
+        f.write(" name %s\n" % node_name)
+        f.write(" slope { %s }\n" % " ".join([str(i) for i in cdl.slope]))
+        f.write(" offset { %s }\n" % " ".join([str(i) for i in cdl.offset]))
+        f.write(" power { %s }\n" % " ".join([str(i) for i in cdl.power]))
+        f.write(" saturation %s\n" % str(cdl.sat))
+        f.write("}\n")
+
 # ==============================================================================
 # GLOBALS
 # ==============================================================================
@@ -163,4 +177,5 @@ OUTPUT_FORMATS = {
     'ccc': write_ccc,
     'cdl': write_cdl,
     'rcdl': write_rnh_cdl,
+    'nk': write_nk,
 }

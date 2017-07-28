@@ -74,7 +74,7 @@ SOFTWARE.
 HALT_ON_ERROR = False
 
 COLLECTION_FORMATS = ['ale', 'ccc', 'cdl', 'edl', 'flex']
-SINGLE_FORMATS = ['cc', 'rcdl']
+SINGLE_FORMATS = ['cc', 'rcdl', 'nk']
 
 # ==============================================================================
 # EXPORTS
