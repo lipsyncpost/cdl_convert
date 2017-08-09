@@ -478,17 +478,31 @@ def parse_cmx(input_file):  # pylint: disable=R0912,R0914
         lines = edl.readlines()
 
     filename = os.path.basename(input_file).split('.')[0]
-
     def parse_cmx_clip(cmx_tuple):
         """Parses a three line cmx clip tuple."""
-        if len(cmx_tuple) != 3:
+
+        split_title = cmx_tuple[0].split()
+        if len(split_title) < 2:
+            return
+
+        title = split_title[1]
+
+        ASC_SOP = None
+        ASC_SAT = None
+
+        for line in cmx_tuple:
+            if line.startswith('*ASC_SOP'):
+                ASC_SOP = line
+            if line.startswith('*ASC_SAT'):
+                ASC_SAT = line
+
+        if not ASC_SOP and not ASC_SAT:
             print(cmx_tuple)
             return
-        title = cmx_tuple[0].split()[1]
 
         sop = re.match(
             r'^\*ASC_SOP \(([\d\. -]+)\)\(([\d\. -]+)\)\(([\d\. -]+)\)',
-            cmx_tuple[1]
+            ASC_SOP
         )
         if not sop:
             print(cmx_tuple)
@@ -502,21 +516,32 @@ def parse_cmx(input_file):  # pylint: disable=R0912,R0914
         cc.offset = sop.group(2).split()
         cc.power = sop.group(3).split()
 
-        cc.sat = cmx_tuple[2].split()[1]
+        cc.sat = ASC_SAT.split()[1]
 
         return cc
 
+    event = []
+    event_list = []
     for i, line in enumerate(lines):
-        if line != '\n':
-            # We only care about newlines when reading CMX, because
-            # we use those to kick off parsing the next take.
-            continue
-        if i + 3 <= len(lines):
-            cc = parse_cmx_clip(lines[i + 1:i + 4])
-        else:
+        line = line.strip()
+        # skip empty line
+        if not line:
             continue
 
-        cdls.append(cc)
+        if event and line.startswith('*'):
+            event.append(line)
+            continue
+        elif line.split()[0].endswith(":"):
+            # print(line)
+            continue
+        else:
+            event = [line]
+            event_list.append(event)
+
+    for event in event_list:
+        cc = parse_cmx_clip(event)
+        if cc:
+            cdls.append(cc)
 
     ccc = collection.ColorCollection()
     ccc.file_in = input_file
