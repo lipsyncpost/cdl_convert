@@ -495,6 +495,8 @@ def parse_cmx(input_file):  # pylint: disable=R0912,R0914
                 ASC_SOP = line
             if line.startswith('*ASC_SAT'):
                 ASC_SAT = line
+            if line.startswith('*FROM CLIP NAME:'):
+                title = line.split()[-1]
 
         if not ASC_SOP and not ASC_SAT:
             print(cmx_tuple)
